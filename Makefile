@@ -19,6 +19,7 @@ ifneq ($(shell which rm),)
     MKDIR_P := mkdir -p
     PY :=
     filesize = echo 'NB_PB$2_BLOCKS equ (' `wc -c $1 | cut -d ' ' -f 1` ' + $2 - 1) / $2'
+	MV := mv
 else
     # Windows outside of a POSIX env (Cygwin, MSYS2, etc.)
     # We need Powershell to get any sort of decent functionality
@@ -27,6 +28,7 @@ else
     MKDIR_P := -mkdir
     PY := python
     filesize = powershell Write-Output $$('NB_PB$2_BLOCKS equ ' + [string] [int] (([IO.File]::ReadAllBytes('$1').Length + $2 - 1) / $2))
+	MV := move
 endif
 
 # Shortcut if you want to use a local copy of RGBDS
@@ -131,7 +133,7 @@ res/%.pb8.size: res/%
 res/%.song: src/tools/lsdpack.exe res/%.gb
 	@$(MKDIR_P) $(@D)
 	$^
-	mv $*.s $@
+	$(MV) $*.s $@
 
 res/%.image: res/%.png
 	@$(MKDIR_P) $(@D)
