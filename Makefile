@@ -128,6 +128,19 @@ res/%.pb8.size: res/%
 	@$(MKDIR_P) $(@D)
 	$(call filesize,$<,8) > res/$*.pb8.size
 
+res/%.song: src/tools/lsdpack.exe res/%.gb
+	@$(MKDIR_P) $(@D)
+	$^
+	mv $*.s $@
+
+res/%.image: res/%.png
+	@$(MKDIR_P) $(@D)
+	$(RGBGFX) -u -o $@ $<
+
+res/%.imagemap: res/%.png
+	@$(MKDIR_P) $(@D)
+	$(RGBGFX) -u -t $@ $<
+
 ###############################################
 #                                             #
 #                 COMPILATION                 #
