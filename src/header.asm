@@ -51,7 +51,53 @@ Reset::
 	dec b
 	jr nz, .copyOAMDMA
 
-	WARN "Edit to set palettes here"
+	;set palettes
+	ld a, %00011011 ; pretty standard BG palette
+	ldh [rBGP], a
+	ldh [hBGP], a
+	ld a, %11100000 ; missing the second-lightest color
+	ldh [rOBP0], a
+	ldh [hOBP0], a
+	ld a, %11010000 ; missing the second-darkest color
+	ldh [rOBP1], a
+	ldh [hOBP1], a
+
+LoadTiles:
+	ld hl, $8000
+	ld de, Tiles
+	ld bc, SIZEOF("tiles")
+	call Memcpy
+
+LoadTilemap:
+	ld hl, $9800
+	ld de, Tilemap
+	ld c, SCRN_Y_B
+.row
+	ld b, SCRN_X_B
+.byte
+	ld a, [de]
+	inc de
+	ld [hl+], a
+	dec b
+	jr nz, .byte
+	;move to the next row
+	ld a, l
+	add SCRN_VX_B - SCRN_X_B
+	ld l, a
+	adc h
+	sub l
+	ld h, a
+	dec c
+	jr nz, .row
+
+
+
+
+
+
+
+
+
 	; CGB palettes maybe, DMG ones always
 
 	; You will also need to reset your handlers' variables below
@@ -88,7 +134,7 @@ Reset::
 	; xor a
 	ldh [hSCY], a
 	ldh [hSCX], a
-	ld a, LCDCF_ON | LCDCF_BGON
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_BG8000
 	ldh [hLCDC], a
 	; And turn the LCD on!
 	ldh [rLCDC], a
@@ -148,4 +194,13 @@ SECTION "Stack", WRAM0
 wStack:
 	ds STACK_SIZE
 wStackBottom:
+
+
+SECTION "tiles", ROM0
+Tiles:
+INCBIN "res/boyempty.image"
+
+SECTION "tilemap", ROM0
+Tilemap:
+INCBIN "res/boyempty.imagemap"
 

@@ -121,7 +121,7 @@ SECTION "Handlers", ROM0[$40]
 	ds $50 - @
 
 ; Timer handler
-	rst $38
+	jp  tim_handler
 	ds $58 - @
 
 ; Serial handler
@@ -130,6 +130,31 @@ SECTION "Handlers", ROM0[$40]
 
 ; Joypad handler (useless)
 	rst $38
+
+SECTION "TIM handler", ROM0
+tim_handler:
+    push    af
+	push 	hl
+
+
+
+    call LsdjTick
+
+
+	;busy-loop for the start of Hblank so we can return safely without messing up any VRAM accesses
+	ld   hl, rSTAT
+	; Wait until Mode is -NOT- 0 or 1
+.waitNotBlank
+	bit  1, [hl]
+	jr   z, .waitNotBlank
+	; Wait until Mode 0 or 1 -BEGINS- (but we know that Mode 0 is what will begin)
+.waitBlank
+	bit  1, [hl]
+	jr   nz, .waitBlank
+
+	pop hl
+    pop af
+    reti
 
 SECTION "VBlank handler", ROM0
 
