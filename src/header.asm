@@ -52,7 +52,9 @@ Reset::
 	jr nz, .copyOAMDMA
 
 	;set palettes
-	ld a, %00011011 ; pretty standard BG palette
+MAIN_BGP equ %00011011 ; pretty standard BG palette
+export MAIN_BGP
+	ld a, MAIN_BGP
 	ldh [rBGP], a
 	ldh [hBGP], a
 	ld a, %11100000 ; missing the second-lightest color
@@ -62,34 +64,7 @@ Reset::
 	ldh [rOBP1], a
 	ldh [hOBP1], a
 
-LoadTiles:
-	ld hl, $8000
-	ld de, Tiles
-	ld bc, SIZEOF("tiles")
-	call Memcpy
-
-LoadTilemap:
-	ld hl, $9800
-	ld de, Tilemap
-	ld c, SCRN_Y_B
-.row
-	ld b, SCRN_X_B
-.byte
-	ld a, [de]
-	inc de
-	ld [hl+], a
-	dec b
-	jr nz, .byte
-	;move to the next row
-	ld a, l
-	add SCRN_VX_B - SCRN_X_B
-	ld l, a
-	adc h
-	sub l
-	ld h, a
-	dec c
-	jr nz, .row
-
+	call LoadSplashScreen
 
 
 
@@ -196,11 +171,5 @@ wStack:
 wStackBottom:
 
 
-SECTION "tiles", ROM0
-Tiles:
-INCBIN "res/cover.image"
 
-SECTION "tilemap", ROM0
-Tilemap:
-INCBIN "res/cover.imagemap"
 
