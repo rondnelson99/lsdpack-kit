@@ -198,9 +198,9 @@ wStackBottom:
 
 SECTION "tiles", ROM0
 Tiles:
-INCBIN "res/your_cover.image"
+INCBIN "res/cover.image"
 
 SECTION "tilemap", ROM0
 Tilemap:
-INCBIN "res/your_image.imagemap"
+INCBIN "res/cover.imagemap"
 
