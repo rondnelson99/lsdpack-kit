@@ -6,14 +6,13 @@ MACRO CoverImage
 SECTION "Cover Image Data \@", ROM0
 CoverImageData\@:
 INCBIN "res/\1.image"
-
-SECTION "Cover Image Tilemap \@", ROM0
+CoverImageDataEnd\@:
 CoverImageTilemap\@:
 INCBIN "res/\1.imagemap"
 
 SECTION FRAGMENT "Image Table", ROM0
     dw CoverImageData\@
-    dw SIZEOF("Cover Image Data \@")
+    dw CoverImageDataEnd\@ - CoverImageData\@ ;size of tile data
     dw CoverImageTilemap\@
 ENDM
 

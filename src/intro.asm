@@ -86,20 +86,13 @@ ChangeSong::
 	;then the size of the image data
 	ld a, [hl+]
 	ld c, a
-	ld a, [hl+]
-	ld b, a
+	ld b, [hl]
 
-	push hl ;store the pointer away for now
 
 	ld hl, $8000
 
 	call LCDMemcpy ;copy the new tiles into VRAM
 
-	pop hl ;now we get the pointer to the tilemap
-
-	ld a, [hl+]
-	ld e, a
-	ld d, [hl]
 
 	;and load the tilemap
 .loadTilemap
