@@ -1,5 +1,5 @@
 
-NUMBER_OF_SONGS equ 2 ;MAKE SURE THIS IS SET PROPERLY
+NUMBER_OF_SONGS equ 6 ;MAKE SURE THIS IS SET PROPERLY
 export NUMBER_OF_SONGS
 
 MACRO CoverImage
@@ -23,3 +23,7 @@ SECTION FRAGMENT "Image Table", ROM0, ALIGN[8] ;for each song, contains a pointe
 ImageTable::
     CoverImage song1 ;this sets src/res/song1.png as the cover for the first song
     CoverImage song2
+    CoverImage song3
+    CoverImage song4
+    CoverImage song5
+    CoverImage song6
