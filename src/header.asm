@@ -148,8 +148,8 @@ hConsoleType:: db
 
 ; Copy of the currently-loaded ROM bank, so the handlers can restore it
 ; Make sure to always write to it before writing to ROMB0
-; (Mind that if using ROMB1, you will run into problems)
-hCurROMBank:: db
+; (Mind that if using ROMB1, you must write to the second byte as well)
+hCurROMBank:: dw
 
 
 SECTION "OAM DMA", HRAM

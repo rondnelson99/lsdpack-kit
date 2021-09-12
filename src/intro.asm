@@ -64,7 +64,6 @@ MainLoop:
 
 SECTION "Change Song", ROM0
 ChangeSong::
-
 	call FadeOut
 	;get the pointer into the image table
 	ldh a, [hCurrentSong]
@@ -82,6 +81,15 @@ ChangeSong::
 	ld e, a
 	ld a, [hl+]
 	ld d, a
+
+	;then it's bank
+	ld a, [hl+]
+	ldh [hCurROMBank], a
+	ld [rROMB0], a
+	ld a, [hl+]
+	ldh [hCurROMBank + 1], a
+	ld [rROMB1], a
+	
 
 	;then the size of the image data
 	ld a, [hl+]
@@ -113,7 +121,7 @@ ChangeSong::
 	
 	call FadeIn
 
-	; play song 0
+	; play the song
 	ldh a, [hCurrentSong]
 	di
 	call LsdjPlaySong

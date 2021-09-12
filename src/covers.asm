@@ -3,7 +3,7 @@ NUMBER_OF_SONGS equ 6 ;MAKE SURE THIS IS SET PROPERLY
 export NUMBER_OF_SONGS
 
 MACRO CoverImage
-SECTION "Cover Image Data \@", ROM0
+SECTION "Cover Image Data \@", ROMX
 CoverImageData\@:
 INCBIN "res/\1.image"
 CoverImageDataEnd\@:
@@ -12,8 +12,8 @@ INCBIN "res/\1.imagemap"
 
 SECTION FRAGMENT "Image Table", ROM0
     dw CoverImageData\@
+    dw BANK("Cover Image Data \@")
     dw CoverImageDataEnd\@ - CoverImageData\@ ;size of tile data
-    dw CoverImageTilemap\@
 ENDM
 
 INCLUDE "defines.asm"
