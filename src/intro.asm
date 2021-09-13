@@ -45,16 +45,8 @@ MainLoop:
 	and a
 	jr z, .done
 ;if they pressed a button, start playing the next song
-	ldh a, [hCurrentSong]
-	inc a
-	cp NUMBER_OF_SONGS  ;did we just pass the last song?
-	jr c, .noWrap
-	;if so, go back to the start
-	xor a
-.noWrap
-	ldh [hCurrentSong], a
-	call ChangeSong ;get the new song playing!
-
+	
+	call NextSong
 
 
 
@@ -63,6 +55,17 @@ MainLoop:
 	jr MainLoop
 
 SECTION "Change Song", ROM0
+NextSong:: ; advance to the next song, wrapping around to the first if nescessary
+	ldh a, [hCurrentSong]
+	inc a
+	cp NUMBER_OF_SONGS  ;did we just pass the last song?
+	jr c, .noWrap
+	;if so, go back to the start
+	xor a
+.noWrap
+	ldh [hCurrentSong], a
+	; fall through to get the new song playing!
+
 ChangeSong::
 	call FadeOut
 	;get the pointer into the image table
