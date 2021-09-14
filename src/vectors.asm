@@ -140,6 +140,11 @@ tim_handler:
 
     call LsdjTick
 
+	;restore the ROM bank
+	ldh a, [hCurROMBank]
+	ld [rROMB0], a
+	ldh a, [hCurROMBank + 1]
+	ld [rROMB1], a
 
 	;busy-loop for the start of Hblank so we can return safely without messing up any VRAM accesses
 	ld   hl, rSTAT
@@ -243,7 +248,26 @@ ENDR
 	ldh [hHeldKeys], a
 
 	pop af ; Pop off return address as well to exit infinite loop
+
 .lagFrame
+	push hl
+
+; ** THIS IS A REALLY DIRTY HACK TO AVOID THIS HANDLER EXITING OUTSIDE OF VBLANK
+;should fix with a better approach sometime
+	;busy-loop for the start of Hblank so we can return safely without messing up any VRAM accesses
+	ld   hl, rSTAT
+	; Wait until Mode is -NOT- 0 or 1
+.waitNotBlank
+	bit  1, [hl]
+	jr   z, .waitNotBlank
+	; Wait until Mode 0 or 1 -BEGINS- (but we know that Mode 0 is what will begin)
+.waitBlank
+	bit  1, [hl]
+	jr   nz, .waitBlank
+
+	pop hl
+
+
 	pop af
 	ret
 

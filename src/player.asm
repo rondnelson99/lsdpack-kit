@@ -16,6 +16,7 @@
 ; with this program; if not, write to the Free Software Foundation, Inc.,
 ; 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. }}}
 
+INCLUDE "defines.asm"
 
 SECTION "player",ROM0[$3d00]
     ; .gbs player entry points
@@ -170,8 +171,13 @@ LsdjTick::
     ret
 
 .handle_song_stop:
-    ld  a,[Song]
-    call    LsdjPlaySong
+    ei ;NextSong Expects ei because it will wait for Vblank
+    ld a, IEF_VBLANK ;disable the timer interrupt so that it doesn't try to keep playing during the fade
+    ldh [rIE], a
+    call NextSong
+    ld a, IEF_VBLANK | IEF_TIMER
+    ldh [rIE], a
+
     jp  .tick
 
 .amp_dec_pu0:

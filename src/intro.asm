@@ -45,16 +45,8 @@ MainLoop:
 	and a
 	jr z, .done
 ;if they pressed a button, start playing the next song
-	ldh a, [hCurrentSong]
-	inc a
-	cp NUMBER_OF_SONGS  ;did we just pass the last song?
-	jr c, .noWrap
-	;if so, go back to the start
-	xor a
-.noWrap
-	ldh [hCurrentSong], a
-	call ChangeSong ;get the new song playing!
-
+	
+	call NextSong
 
 
 
@@ -63,8 +55,18 @@ MainLoop:
 	jr MainLoop
 
 SECTION "Change Song", ROM0
-ChangeSong::
+NextSong:: ; advance to the next song, wrapping around to the first if nescessary
+	ldh a, [hCurrentSong]
+	inc a
+	cp NUMBER_OF_SONGS  ;did we just pass the last song?
+	jr c, .noWrap
+	;if so, go back to the start
+	xor a
+.noWrap
+	ldh [hCurrentSong], a
+	; fall through to get the new song playing!
 
+ChangeSong::
 	call FadeOut
 	;get the pointer into the image table
 	ldh a, [hCurrentSong]
@@ -83,23 +85,25 @@ ChangeSong::
 	ld a, [hl+]
 	ld d, a
 
+	;then it's bank
+	ld a, [hl+]
+	ldh [hCurROMBank], a
+	ld [rROMB0], a
+	ld a, [hl+]
+	ldh [hCurROMBank + 1], a
+	ld [rROMB1], a
+	
+
 	;then the size of the image data
 	ld a, [hl+]
 	ld c, a
-	ld a, [hl+]
-	ld b, a
+	ld b, [hl]
 
-	push hl ;store the pointer away for now
 
 	ld hl, $8000
 
 	call LCDMemcpy ;copy the new tiles into VRAM
 
-	pop hl ;now we get the pointer to the tilemap
-
-	ld a, [hl+]
-	ld e, a
-	ld d, [hl]
 
 	;and load the tilemap
 .loadTilemap
@@ -120,7 +124,7 @@ ChangeSong::
 	
 	call FadeIn
 
-	; play song 0
+	; play the song
 	ldh a, [hCurrentSong]
 	di
 	call LsdjPlaySong
