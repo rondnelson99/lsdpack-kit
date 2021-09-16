@@ -6,6 +6,7 @@ Intro::
 	rst WaitVBlank
 	xor a
 	ldh [hCurrentSong], a
+	ldh [hSongDone], a
 
 SPLASH_TIMEOUT equ 5 * 60
 SplashScreen: ;loop at the splash screen until either a button is pressed or a number of frames pass
@@ -43,11 +44,19 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 MainLoop:
 	ldh a, [hPressedKeys]
 	and a
-	jr z, .done
 ;if they pressed a button, start playing the next song
 	
-	call NextSong
+	call nz, NextSong
 
+	;if hSongDone is 1, switch to the next song and zero it
+
+	ldh a, [hSongDone]
+	dec a
+	jr nz, .done
+
+	call NextSong
+	xor a
+	ldh [hSongDone], a
 
 
 .done
@@ -200,6 +209,8 @@ FadeIn:: ;fade BGP in from black
 SECTION "Current Song", HRAM
 hCurrentSong::
 	db
+hSongDone::
+	db ;set to 1 when the song finishes
 
 SECTION "load splash screen", ROM0 ;this is called by the header when the screen is off
 LoadSplashScreen::
