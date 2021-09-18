@@ -20,6 +20,7 @@ ifneq ($(shell which rm),)
     PY :=
     filesize = echo 'NB_PB$2_BLOCKS equ (' `wc -c $1 | cut -d ' ' -f 1` ' + $2 - 1) / $2'
 	MV := mv
+    EXE :=
 else
     # Windows outside of a POSIX env (Cygwin, MSYS2, etc.)
     # We need Powershell to get any sort of decent functionality
@@ -29,6 +30,7 @@ else
     PY := python
     filesize = powershell Write-Output $$('NB_PB$2_BLOCKS equ ' + [string] [int] (([IO.File]::ReadAllBytes('$1').Length + $2 - 1) / $2))
 	MV := move
+    EXE := .exe
 endif
 
 # Shortcut if you want to use a local copy of RGBDS
@@ -70,6 +72,7 @@ clean:
 	$(RM_RF) $(OBJDIR)
 	$(RM_RF) $(DEPDIR)
 	$(RM_RF) res
+	$(RM_RF) lsdpack
 .PHONY: clean
 
 # `rebuild`: Build everything from scratch
@@ -89,11 +92,15 @@ rebuild:
 # If that happens, warn the user
 # Note that the real paths aren't used!
 # Since RGBASM fails to find the files, it outputs the raw paths, not the actual ones.
-hardware.inc/hardware.inc rgbds-structs/structs.asm:
-	@echo 'hardware.inc is not present; have you initialized submodules?'
+hardware.inc/hardware.inc rgbds-structs/structs.asm src/tools/lsdpack/CMakeLists:
+	@echo 'Some files are missing; have you initialized submodules?'
 	@echo 'Run `git submodule update --init`, then `make clean`, then `make` again.'
 	@echo 'Tip: to avoid this, use `git clone --recursive` next time!'
 	@exit 1
+
+lsdpack/lsdpack${EXE}: src/tools/lsdpack/CMakeLists.txt
+	cmake -S "$(<D)" -B "$(@D)" -DCMAKE_BUILD_TYPE=Release
+	cmake --build "$(@D)"
 
 ################################################
 #                                              #
@@ -130,7 +137,7 @@ res/%.pb8.size: res/%
 	@$(MKDIR_P) $(@D)
 	$(call filesize,$<,8) > res/$*.pb8.size
 
-res/%.song: src/tools/lsdpack.exe res/%.gb
+res/%.song: lsdpack/lsdpack${EXE} res/%.gb
 	@$(MKDIR_P) $(@D)
 	$^
 	$(MV) $*.s $@
