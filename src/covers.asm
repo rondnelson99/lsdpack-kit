@@ -1,5 +1,5 @@
 
-NUMBER_OF_SONGS equ 6 ;MAKE SURE THIS IS SET PROPERLY
+NUMBER_OF_SONGS equ 4 ;MAKE SURE THIS IS SET PROPERLY
 export NUMBER_OF_SONGS
 
 MACRO CoverImage
@@ -25,5 +25,3 @@ ImageTable::
     CoverImage song2
     CoverImage song3
     CoverImage song4
-    CoverImage song5
-    CoverImage song6
