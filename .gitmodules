@@ -4,3 +4,6 @@
 [submodule "src/include/rgbds-structs"]
 	path = src/include/rgbds-structs
 	url = https://github.com/ISSOtm/rgbds-structs.git
+[submodule "src/tools/lsdpack"]
+	path = src/tools/lsdpack
+	url = https://github.com/jkotlinski/lsdpack.git
