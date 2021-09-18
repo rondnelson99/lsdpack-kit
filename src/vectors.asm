@@ -136,7 +136,9 @@ tim_handler:
     push    af
 	push 	hl
 
-
+	ldh a, [hSongDone]
+	dec a
+	jr z, .skipTick ;if the song is done, stop playing it
 
     call LsdjTick
 
@@ -146,6 +148,7 @@ tim_handler:
 	ldh a, [hCurROMBank + 1]
 	ld [rROMB1], a
 
+.skipTick
 	;busy-loop for the start of Hblank so we can return safely without messing up any VRAM accesses
 	ld   hl, rSTAT
 	; Wait until Mode is -NOT- 0 or 1
