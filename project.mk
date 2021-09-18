@@ -10,10 +10,10 @@ PADVALUE := 0xFF
 VERSION := 0
 
 # 4-ASCII letter game ID
-GAMEID := BOIL
+# GAMEID := 
 
 # Game title, up to 11 ASCII chars
-TITLE := BOILERPLATE
+TITLE := LSDPACK
 
 # New licensee, 2 ASCII chars
 # Homebrew games FTW!
@@ -34,7 +34,7 @@ MBC := MBC5
 SRAMSIZE := 0x00
 
 # ROM name
-ROMNAME := boilerplate
+ROMNAME := lsdpack
 ROMEXT  := gb
 
 

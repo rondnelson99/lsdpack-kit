@@ -171,14 +171,10 @@ LsdjTick::
     ret
 
 .handle_song_stop:
-    ei ;NextSong Expects ei because it will wait for Vblank
-    ld a, IEF_VBLANK ;disable the timer interrupt so that it doesn't try to keep playing during the fade
-    ldh [rIE], a
-    call NextSong
-    ld a, IEF_VBLANK | IEF_TIMER
-    ldh [rIE], a
+    ld a, 1
+    ldh [hSongDone], a ;signal to the main context that it's time to switch songs
 
-    jp  .tick
+    jr  .lyc_done
 
 .amp_dec_pu0:
     ld  a,9
