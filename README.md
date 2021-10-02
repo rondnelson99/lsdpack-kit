@@ -3,7 +3,7 @@
 An easy-to-use template for taking your songs made with [LSDJ](https://www.littlesounddj.com/lsd/index.php), and combining them with images you supply for each song. Additionally, you can have a splash screen that appears when the ROM is started.
 
 ## How does it work?
-This project combines ISSOtm's excellent [gb-starter-kit](https://github.com/ISSOtm/gb-starter-kit) with kotlinski's [lsdpack](https://github.com/jkotlinski/lsdpack). lsdpack converts LSDJ songs into a raw format that can be easily played back, and gb-starter-kit provides an automatic build system that can handle all the asset conversion.
+This project combines ISSOtm's excellent [gb-starter-kit](https://github.com/ISSOtm/gb-starter-kit) with jkotlinski's [lsdpack](https://github.com/jkotlinski/lsdpack). lsdpack converts LSDJ songs into a raw format that can be easily played back, and gb-starter-kit provides an automatic build system that can handle all the asset conversion.
 
 ## Downloading
 
