@@ -25,7 +25,7 @@ You can download a ZIP of this project by clicking the "Code" button next to the
 
 ## Setting up
 
-This project requires a unix-like enviornment to run. I use Debian 11 on WSL, but I know that others have had success on linux. MacOS and other unix-like windows enviornments like Cygwin are untested. Additionally, you need RGBDS 0.5.1 or newer, make, and python. When you build for the first time, it will compile lsdpack as well. This requires a C++ compiler and a relatively new version of CMake. I'm not sure of the exact minimum, but I use CMake 3.18.4.
+This project requires a unix-like enviornment to run. I use Debian 11 on WSL, but I know that others have had success on linux. MacOS and other unix-like windows enviornments like Cygwin are untested. Additionally, you need RGBDS 0.5.1 or newer, make, and python. Put your LSDJ rom in src/res. When you build for the first time, it will compile lsdpack as well. This requires a C++ compiler and a relatively new version of CMake. I'm not sure of the exact minimum, but I use CMake 3.18.4.
 
 ## Customizing
 
