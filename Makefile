@@ -54,7 +54,8 @@ SRCS = $(wildcard src/*.asm)
 
 ## Project-specific configuration
 # Use this to override the above
-include project.mk
+include code_config.mk
+include kit_config.mk
 
 ################################################
 #                                              #
@@ -66,13 +67,18 @@ include project.mk
 all: $(ROM)
 .PHONY: all
 
+# `full-clean` clean everything *including* lsdpack. Normally lsdpack doesn't get cleaned since it's probably not being modified
+full-clean:
+	$(MAKE) clean
+	$(RM_RF) lsdpack
+.PHONY: full-clean
+
 # `clean`: Clean temp and bin files
 clean:
 	$(RM_RF) $(BINDIR)
 	$(RM_RF) $(OBJDIR)
 	$(RM_RF) $(DEPDIR)
 	$(RM_RF) res
-	$(RM_RF) lsdpack
 .PHONY: clean
 
 # `rebuild`: Build everything from scratch
@@ -81,6 +87,7 @@ rebuild:
 	$(MAKE) clean
 	$(MAKE) all
 .PHONY: rebuild
+
 
 ################################################
 #                                              #
@@ -137,10 +144,11 @@ res/%.pb8.size: res/%
 	@$(MKDIR_P) $(@D)
 	$(call filesize,$<,8) > res/$*.pb8.size
 
-res/%.song: lsdpack/lsdpack${EXE} res/%.gb
+# include song files made by lsdpack. The list of roms is set by kit_config.mk
+res/lsdj.song: lsdpack/lsdpack${EXE} $(LSDJ_ROMS)
 	@$(MKDIR_P) $(@D)
-	$^
-	$(MV) $*.s $@
+	$^ 
+	$(MV) lsdj.s $@
 
 res/%.image: res/%.png
 	@$(MKDIR_P) $(@D)

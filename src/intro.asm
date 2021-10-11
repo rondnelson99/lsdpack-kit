@@ -247,11 +247,11 @@ LoadSplashScreen::
 
 SECTION "Splash Tiles", ROM0
 SplashTiles:
-INCBIN "res/splash.image"
+INCBIN "res/{SPLASH_IMAGE}.image" ;SPLASH_IMAGE is an EQUS set by kit_config.inc
 
 SECTION "splash tilemap", ROM0
 SplashTilemap:
-INCBIN "res/splash.imagemap"
+INCBIN "res/{SPLASH_IMAGE}.imagemap"
 
 ;include all the song data
 INCLUDE "res/lsdj.song"

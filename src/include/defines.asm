@@ -6,6 +6,8 @@ INCLUDE "hardware.inc/hardware.inc"
 
 INCLUDE "rgbds-structs/structs.asm"
 
+; include the user-facing config file
+INCLUDE "kit_config.inc"
 
 ; A couple more hardware defines
 

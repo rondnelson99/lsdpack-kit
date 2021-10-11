@@ -1,4 +1,5 @@
-# This file contains project configuration
+# This file contains configuration for a few things that lsdpack-kit users probably don't need to mess with. 
+# Feel free to change them if you wan't, but most of the settings you're interested in are located in kit_config.mk and kit_config.inc
 
 
 # Value that the ROM will be filled with
@@ -11,9 +12,6 @@ VERSION := 0
 
 # 4-ASCII letter game ID
 # GAMEID := 
-
-# Game title, up to 11 ASCII chars
-TITLE := LSDPACK
 
 # New licensee, 2 ASCII chars
 # Homebrew games FTW!
