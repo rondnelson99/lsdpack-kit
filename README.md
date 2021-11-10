@@ -28,8 +28,7 @@ You can download a ZIP of this project by clicking the "Code" button next to the
 This project requires a unix-like enviornment to run. I use Debian 11 on WSL, but I know that others have had success on linux. MacOS and other unix-like windows enviornments like Cygwin are untested. Additionally, you need RGBDS 0.5.1 or newer, make, and python. Put your LSDJ rom in src/res. When you build for the first time, it will compile lsdpack as well. This requires a C++ compiler and a relatively new version of CMake. I'm not sure of the exact minimum, but I use CMake 3.18.4.
 
 ## Customizing
-
-I plan to make the project much easier to customize in the future, so I'll wait until then before writing instructions here.
+In the project's root you'll see two config files: `kit_config.inc` and `kit_config.mk`. These contain a bunch of settings, and many comments explaining how to use them. The reason you have to deal with two separate files that use different syntaxes is because one is processed by `make` and the other by `rgbasm`. The basic idea is just to read through the two files and cutomize everything to your liking. I may add more options in the future. Let me know what you want to see! I won't make any promises but I'm open to ideas. 
 
 ## Compiling
 
