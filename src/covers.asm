@@ -16,7 +16,7 @@ ENDM
 
 
 MACRO CoverImageTable
-NUMBER_OF_SONGS equ _NARG
+def NUMBER_OF_SONGS equ _NARG
     EXPORT NUMBER_OF_SONGS
     REPT _NARG
         CoverImage \1 ;add a coverImage entry for each argument

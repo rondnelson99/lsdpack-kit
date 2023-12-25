@@ -52,7 +52,7 @@ Reset::
 	jr nz, .copyOAMDMA
 
 	;set palettes
-MAIN_BGP equ %00011011 ; pretty standard BG palette
+def MAIN_BGP equ %00011011 ; pretty standard BG palette
 export MAIN_BGP
 	ld a, MAIN_BGP
 	ldh [rBGP], a

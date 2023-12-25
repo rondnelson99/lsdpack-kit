@@ -8,7 +8,7 @@ Intro::
 	ldh [hCurrentSong], a
 	ldh [hSongDone], a
 
-SPLASH_TIMEOUT equ 5 * 60
+def SPLASH_TIMEOUT equ 5 * 60
 SplashScreen: ;loop at the splash screen until either a button is pressed or a number of frames pass
 	ld bc, SPLASH_TIMEOUT
 .loop
@@ -155,7 +155,7 @@ ChangeSong::
 
 SECTION "fade out", ROM0
 
-FADE_SPEED equ 20 ;number of frames to fade for
+def FADE_SPEED equ 20 ;number of frames to fade for
 FadeOut:: ;fade BGP out to black
 	ld c, 4 ;loop through the 4 colors in the palette
 .nextColor

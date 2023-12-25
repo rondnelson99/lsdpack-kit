@@ -2,11 +2,11 @@
 INCLUDE "defines.asm"
 
 	newcharmap crash_handler
-CHARS equs "0123456789ABCDEF-GHIJKLMNOPQR:SUVWXYZabcdefghijklmnopqrTstuvwxyz! "
-CHAR = 0
+def CHARS equs "0123456789ABCDEF-GHIJKLMNOPQR:SUVWXYZabcdefghijklmnopqrTstuvwxyz! "
+def CHAR = 0
 REPT STRLEN("{CHARS}")
 	charmap STRSUB("{CHARS}", CHAR + 1, 1), CHAR
-CHAR = CHAR + 1
+def CHAR = CHAR + 1
 ENDR
 
 SECTION "Crash handler", ROM0
@@ -550,10 +550,10 @@ vCrashVBK: db
 	ds SCRN_VX_B - SCRN_X_B - 1
 vCrashDumpScreen:
 	ds SCRN_X_B + 1
-ROW = 0
+def ROW = 0
 	REPT SCRN_Y_B - 1
-ROW = ROW + 1
-ROW_LABEL equs ".row{d:ROW}"
+def ROW = ROW + 1
+def ROW_LABEL equs ".row{d:ROW}"
 		ds SCRN_VX_B - SCRN_X_B - 1
 	ROW_LABEL
 		ds SCRN_X_B + 1

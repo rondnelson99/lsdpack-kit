@@ -65,17 +65,17 @@ LsdjPlaySong::
     pop de
     ret
 
-CMD_END_TICK        = 0
-CMD_SAMPLE_START    = 1
-CMD_SONG_STOP       = 2
-CMD_NEXT_BANK       = 3
-CMD_AMP_DEC_PU0     = 4
-CMD_AMP_DEC_PU1     = 5
-CMD_AMP_DEC_NOI     = 6
-CMD_PITCH_PU0       = 7
-CMD_PITCH_PU1       = 8
-CMD_PITCH_WAV       = 9
-CMD_SAMPLE_NEXT     = 10
+def CMD_END_TICK        = 0
+def CMD_SAMPLE_START    = 1
+def CMD_SONG_STOP       = 2
+def CMD_NEXT_BANK       = 3
+def CMD_AMP_DEC_PU0     = 4
+def CMD_AMP_DEC_PU1     = 5
+def CMD_AMP_DEC_NOI     = 6
+def CMD_PITCH_PU0       = 7
+def CMD_PITCH_PU1       = 8
+def CMD_PITCH_WAV       = 9
+def CMD_SAMPLE_NEXT     = 10
 
 ; Call this six times per screen update,
 ; evenly spread out over the screen.
