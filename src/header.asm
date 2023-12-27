@@ -163,32 +163,6 @@ wStack:
 	ds STACK_SIZE
 wStackBottom:
 
-SECTION "LYC Table", ROM0
-LYCTable::
-	db 120
-	dw ShowMenuTiles
-
-SECTION "Swap to menu", ROM0
-ShowMenuTiles::
-	pop bc
-
-	ld a, $80 ;LCD on, everything disabled
-
-	ld   hl, rSTAT
-    ; Wait until Mode is -NOT- 0 or 1
-.waitNotBlank
-    bit  1, [hl]
-    jr   z, .waitNotBlank
-    ; Wait until Mode 0 or 1 -BEGINS- (but we know that Mode 0 is what will begin)
-.waitBlank
-    bit  1, [hl]
-    jr   nz, .waitBlank
-
-	ldh [rLCDC], a
-
-	pop hl
-	pop af
-	reti
 
 
 

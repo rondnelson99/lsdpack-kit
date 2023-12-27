@@ -3,6 +3,8 @@ INCLUDE "defines.asm"
 SECTION "Intro", ROM0
 
 Intro::
+	call InitMenu
+
 	rst WaitVBlank
 	xor a
 	ldh [hCurrentSong], a
@@ -36,8 +38,9 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 	ldh [6],a   ; TMA
 	ld  a,6
 	ldh [7],a   ; TAC
-	ld  a, IEF_TIMER | IEF_VBLANK
-	ldh [$ff],a ; IE
+	ldh a, [rIE]
+	or  a, IEF_TIMER
+	ldh [rIE],a ; IE
 
 
 
