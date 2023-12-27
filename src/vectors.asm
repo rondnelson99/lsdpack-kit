@@ -111,13 +111,13 @@ SECTION "Handlers", ROM0[$40]
 
 ; VBlank handler
 	push af
-	ldh a, [hLCDC]
-	ldh [rLCDC], a
+	push hl
+	push bc
 	jp VBlankHandler
 	ds $48 - @
 
 ; STAT handler
-	rst $38
+	jp STATHandler
 	ds $50 - @
 
 ; Timer handler
@@ -130,6 +130,51 @@ SECTION "Handlers", ROM0[$40]
 
 ; Joypad handler (useless)
 	rst $38
+
+SECTION "STAT handler", ROM0
+/*
+ * The STAT handler reads from the LYC table at TableAddress in the following format:
+   - byte 1: scanline number
+   - bytes 2-3: Destination Address (ROM0)
+   -- The addresses are jumped to with the scanline number in C.
+ */
+STATHandler:
+	push af
+	push hl
+	push bc ; 12
+	
+	ld hl, wLYCTablePosition ; load LYCTablePosition into hl
+	ld a, [hl+]
+	ld h, [hl]
+	ld l, a ; 20
+
+	ld c, [hl] ; get the current scanline
+
+	inc hl ; point to destination address
+	ld b, [hl]
+	inc hl
+	ld a, [hl+] ;30
+	
+	inc hl
+	ld d, [hl] ; next scanline
+
+	ld a, l
+	ld [wLYCTablePosition], a
+	ld a, h
+	ld [wLYCTablePosition + 1], a
+
+	ld h, a
+	ld l, b
+
+	ld a, d
+	ldh [rLYC], a
+	ld a, c 
+
+	jp hl ; we have no hope to do any cycle-counting since timer interrupt is also running. 
+
+SECTION "STAT Handler RAM", WRAM0
+wLYCTableAddress:: dw
+wLYCTablePosition: dw
 
 SECTION "TIM handler", ROM0
 tim_handler:
@@ -167,6 +212,8 @@ tim_handler:
 SECTION "VBlank handler", ROM0
 
 VBlankHandler:
+	ldh a, [hLCDC]
+	ldh [rLCDC], a
 	ldh a, [hSCY]
 	ldh [rSCY], a
 	ldh a, [hSCX]
@@ -188,6 +235,15 @@ VBlankHandler:
 	xor a
 	ldh [hOAMHigh], a
 .noOAMTransfer
+
+	; Prep the LYC Handler by copying LYCTableAddress into LYCTablePosition
+	ld hl, wLYCTablePosition + 1
+	assert wLYCTableAddress + 2 == wLYCTablePosition
+	ld a, [hl-]
+	ld b, [hl]
+	dec hl
+	ld [hl-], a
+	ld [hl], b
 
 	; Put all operations that cannot be interrupted above this line
 	; For example, OAM DMA (can't jump to ROM in the middle of it),
@@ -253,24 +309,9 @@ ENDR
 	pop af ; Pop off return address as well to exit infinite loop
 
 .lagFrame
-	push hl
 
-; ** THIS IS A REALLY DIRTY HACK TO AVOID THIS HANDLER EXITING OUTSIDE OF VBLANK
-;should fix with a better approach sometime
-	;busy-loop for the start of Hblank so we can return safely without messing up any VRAM accesses
-	ld   hl, rSTAT
-	; Wait until Mode is -NOT- 0 or 1
-.waitNotBlank
-	bit  1, [hl]
-	jr   z, .waitNotBlank
-	; Wait until Mode 0 or 1 -BEGINS- (but we know that Mode 0 is what will begin)
-.waitBlank
-	bit  1, [hl]
-	jr   nz, .waitBlank
-
+	pop bc
 	pop hl
-
-
 	pop af
 	ret
 

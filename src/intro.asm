@@ -75,6 +75,9 @@ NextSong:: ; advance to the next song, wrapping around to the first if nescessar
 	ldh [hCurrentSong], a
 	; fall through to get the new song playing!
 
+/*
+ * Performs a fade-to-black and loads up the next song
+*/ 
 ChangeSong::
 	call FadeOut
 	;get the pointer into the image table

@@ -7,3 +7,6 @@
 [submodule "src/tools/lsdpack"]
 	path = src/tools/lsdpack
 	url = https://github.com/jkotlinski/lsdpack.git
+[submodule "src/include/gb-vwf"]
+	path = src/include/gb-vwf
+	url = git@github.com:ISSOtm/gb-vwf.git
