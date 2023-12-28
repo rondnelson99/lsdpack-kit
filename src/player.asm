@@ -18,6 +18,27 @@
 
 INCLUDE "defines.asm"
 
+SECTION "player_ram",WRAM0
+
+Song:
+    ds  1
+CurrentBank:
+    ds  2
+CurrentPtr:
+    ds  2
+SampleBank:
+    ds  1
+SampleAddress:
+    ds  2
+SamplePitchMsb:
+    ds  1
+RepeatCmd:
+    ds  1
+RepeatCmdCounter:
+    ds  1
+wPausedNR51:
+    db ; backs up the value of NR51 during pause
+
 SECTION "Init Player LYC", ROM0
 ; Initialized the player/LYC system. Call this before LSDJPlaySong
 InitPlayerLYC::
@@ -40,6 +61,34 @@ PlayerLYCTable:: ; calls SoundTick 6 times per frame, evenly spaced out across s
     db 129
     dw LYCSongTick
     db $FF
+
+SECTION "PauseSong", ROM0
+; Pauses the current song
+PauseSong::
+    ; Mute sound
+    ldh a, [rNR51]
+    ld [wPausedNR51], a
+    xor a
+    ldh [rNR51], a
+    ; disable STAT interrupt
+    ldh a, [rIE]
+    and ~IEF_STAT
+    ldh [rIE], a
+
+    ret
+
+SECTION "ResumeSong", ROM0
+; Resumes the current song
+ResumeSong::
+    ld a, [wPausedNR51]
+    ldh [rNR51], a
+
+    ; enable STAT interrupt
+    ldh a, [rIE]
+    or IEF_STAT
+    ldh [rIE], a
+
+    ret
 
 SECTION "LYCSongTick", ROM0
 ; LYC interrupt to perform song tick. handles register preservation with LYC system
@@ -464,21 +513,3 @@ LsdjTick::
     jp  .loop
 
 
-SECTION "player_ram",WRAM0
-
-Song:
-    ds  1
-CurrentBank:
-    ds  2
-CurrentPtr:
-    ds  2
-SampleBank:
-    ds  1
-SampleAddress:
-    ds  2
-SamplePitchMsb:
-    ds  1
-RepeatCmd:
-    ds  1
-RepeatCmdCounter:
-    ds  1

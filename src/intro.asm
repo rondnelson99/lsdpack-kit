@@ -1,5 +1,16 @@
 INCLUDE "defines.asm"
 
+SECTION "Current Song", HRAM
+hCurrentSong::
+	db
+hSongDone::
+	db ;set to 1 when the song finishes
+hCurrentState::
+/* 
+Bit 0: 1 if song is paused
+*/
+	db
+
 SECTION "Intro", ROM0
 
 Intro::
@@ -31,11 +42,15 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 
 
 MainLoop:
+	; Controls: A - Pause
+	; Right - Next Song
 	ldh a, [hPressedKeys]
-	and a
-;if they pressed a button, start playing the next song
-	
+	bit PADB_RIGHT, a
 	call nz, NextSong
+
+	ldh a, [hPressedKeys]
+	bit PADB_A, a
+	call nz, TogglePause
 
 	;if hSongDone is 1, switch to the next song and zero it
 
@@ -51,6 +66,15 @@ MainLoop:
 .done
 	rst WaitVBlank
 	jr MainLoop
+
+SECTION "Toggle Pause", ROM0
+TogglePause:
+	ldh a, [hCurrentState]
+	xor $01 ; toggle the pause bit
+	ldh [hCurrentState], a
+	bit 0, a
+	jp nz, PauseSong ; tail calls
+	jp ResumeSong
 
 SECTION "Change Song", ROM0
 NextSong:: ; advance to the next song, wrapping around to the first if nescessary
@@ -196,13 +220,6 @@ FadeIn:: ;fade BGP in from black
 	jr nz, .nextColor
 	ret
 
-
-
-SECTION "Current Song", HRAM
-hCurrentSong::
-	db
-hSongDone::
-	db ;set to 1 when the song finishes
 
 SECTION "load splash screen", ROM0 ;this is called by the header when the screen is off
 LoadSplashScreen::
