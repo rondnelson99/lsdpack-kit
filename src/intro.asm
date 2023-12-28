@@ -3,12 +3,11 @@ INCLUDE "defines.asm"
 SECTION "Intro", ROM0
 
 Intro::
-	call InitMenu
-
-	rst WaitVBlank
 	xor a
 	ldh [hCurrentSong], a
-	ldh [hSongDone], a
+	
+    call InitPlayerLYC
+
 
 def SPLASH_TIMEOUT equ 5 * 60
 SplashScreen: ;loop at the splash screen until either a button is pressed or a number of frames pass
@@ -29,19 +28,6 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 .done
 
 	call ChangeSong
-
-
-
-
-	; setup timer
-	ld  a,256-183
-	ldh [6],a   ; TMA
-	ld  a,6
-	ldh [7],a   ; TAC
-	ldh a, [rIE]
-	or  a, IEF_TIMER
-	ldh [rIE],a ; IE
-
 
 
 MainLoop:

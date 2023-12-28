@@ -1,5 +1,5 @@
 ; lsdpack - standalone LSDj (Little Sound Dj) recorder + player {{{
-; Copyright (C) 2018  Johan Kotlinski
+; Copyright (C) 2018  Johan Kotlinski - Modified by Ron Nelson
 ; https://www.littlesounddj.com
 ;
 ; This program is free software; you can redistribute it and/or modify
@@ -18,24 +18,71 @@
 
 INCLUDE "defines.asm"
 
-SECTION "player",ROM0[$3d00]
-    ; .gbs player entry points
-    ret
-    jp LsdjPlaySong
-    jp LsdjTick
+SECTION "Init Player LYC", ROM0
+; Initialized the player/LYC system. Call this before LSDJPlaySong
+InitPlayerLYC::
+    ld de, PlayerLYCTable
+    jp InitLYC ; tail call
+
+
+SECTION "Player LYC Table", ROM0
+PlayerLYCTable:: ; calls SoundTick 6 times per frame, evenly spaced out across scanlines
+    db 1
+    dw LYCSongTick
+    db 23
+    dw LYCSongTick
+    db 52
+    dw LYCSongTick
+    db 78
+    dw LYCSongTick
+    db 104
+    dw LYCSongTick
+    db 129
+    dw LYCSongTick
+    db $FF
+
+SECTION "LYCSongTick", ROM0
+; LYC interrupt to perform song tick. handles register preservation with LYC system
+LYCSongTick::
+    ldh a, [hSongDone]
+	dec a
+	jr z, .skipTick ;if the song is done, stop playing it
+
+    call LsdjTick
+
+	;restore the ROM bank
+	ldh a, [hCurROMBank]
+	ld [rROMB0], a
+	ldh a, [hCurROMBank + 1]
+	ld [rROMB1], a
+
+.skipTick
+	ld   hl, rSTAT
+    ; Wait until Mode is -NOT- 0 or 1
+.waitNotBlank
+    bit  1, [hl]
+    jr   z, .waitNotBlank
+    ; Wait until Mode 0 or 1 -BEGINS- (but we know that Mode 0 is what will begin)
+.waitBlank
+    bit  1, [hl]
+    jr   nz, .waitBlank
+
+    pop de
+    pop bc
+	pop hl
+	pop af
+	reti
+
+
+SECTION "player", ROM0
 
 
 ; Starts playing a song. If a song is already playing,
 ; make sure interrupts are disabled when calling this.
 ;
 ; IN: a = song number
-; OUT: -
-; SIDE EFFECTS: trashes af
 ;
 LsdjPlaySong::
-    push    de
-    push    hl
-
     ld  [Song],a
 
     ld  hl,SongLocations
@@ -58,11 +105,18 @@ LsdjPlaySong::
     ld  [de],a  ; CurrentPtr + 1
 
     xor a
+    ldh [hSongDone], a ; song is not done
     ldh [$26],a ; stop sound
     ld  [RepeatCmdCounter],a
 
-    pop hl
-    pop de
+    
+    xor a
+    ldh [rIF], a ; clear any pending STAT interrupt
+
+    ldh a, [rIE]
+    or IEF_STAT
+    ldh [rIE], a ; enable STAT interrupt
+
     ret
 
 def CMD_END_TICK        = 0
@@ -80,13 +134,7 @@ def CMD_SAMPLE_NEXT     = 10
 ; Call this six times per screen update,
 ; evenly spread out over the screen.
 ;
-; IN: -
-; OUT: -
-; SIDE EFFECTS: changes ROM bank, trashes af
-;
 LsdjTick::
-    push    hl
-    push    bc
 
 .tick
     ld  a,[CurrentBank+1]
@@ -166,8 +214,6 @@ LsdjTick::
     ld  [CurrentPtr],a
     ld  a,h
     ld  [CurrentPtr+1],a
-    pop bc
-    pop hl
     ret
 
 .handle_song_stop:

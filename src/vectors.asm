@@ -107,7 +107,7 @@ Crash::
 	di ; Doing this as soon as possible to avoid interrupts messing up
 	jp HandleCrash
 
-SECTION "Handlers", ROM0[$40]
+SECTION "VBlank", ROM0[$40]
 
 ; VBlank handler
 	push af
@@ -116,97 +116,6 @@ SECTION "Handlers", ROM0[$40]
 	push de
 	jp VBlankHandler
 	ds $48 - @
-
-; STAT handler
-	jp STATHandler
-	ds $50 - @
-
-; Timer handler
-	jp  tim_handler
-	ds $58 - @
-
-; Serial handler
-	rst $38
-	ds $60 - @
-
-; Joypad handler (useless)
-	rst $38
-
-SECTION "STAT handler", ROM0
-/*
- * The STAT handler reads from the LYC table at TableAddress in the following format:
-   - byte 1: scanline number
-   - bytes 2-3: Destination Address (ROM0)
-   -- The addresses are jumped to with the scanline number in B.
-   - the table should end with $FF
- */
-STATHandler:
-	push af
-	push hl
-	push bc 
-	push de
-	
-	ld hl, wLYCTablePosition ; load LYCTablePosition into hl
-	ld a, [hl+]
-	ld h, [hl]
-	ld l, a ; 20
-
-	ld b, [hl] ; get the current scanline
-
-	inc hl ; point to destination address
-	ld e, [hl]
-	inc hl
-	ld d, [hl] ;30
-	
-	inc hl
-	ld a, [hl] ; next scanline
-	ldh [rLYC], a
-
-	ld a, l
-	ld [wLYCTablePosition], a
-	ld a, h
-	ld [wLYCTablePosition + 1], a
-
-	ld h, d
-	ld l, e
-	jp hl ; we have no hope to do any cycle-counting since timer interrupt is also running. 
-
-SECTION "STAT Handler RAM", WRAM0
-wLYCTableAddress:: dw
-wLYCTablePosition: dw
-
-SECTION "TIM handler", ROM0
-tim_handler:
-    push    af
-	push 	hl
-
-	ldh a, [hSongDone]
-	dec a
-	jr z, .skipTick ;if the song is done, stop playing it
-
-    call LsdjTick
-
-	;restore the ROM bank
-	ldh a, [hCurROMBank]
-	ld [rROMB0], a
-	ldh a, [hCurROMBank + 1]
-	ld [rROMB1], a
-
-.skipTick
-	;busy-loop for the start of Hblank so we can return safely without messing up any VRAM accesses
-	ld   hl, rSTAT
-	; Wait until Mode is -NOT- 0 or 1
-.waitNotBlank
-	bit  1, [hl]
-	jr   z, .waitNotBlank
-	; Wait until Mode 0 or 1 -BEGINS- (but we know that Mode 0 is what will begin)
-.waitBlank
-	bit  1, [hl]
-	jr   nz, .waitBlank
-
-	pop hl
-    pop af
-    reti
 
 SECTION "VBlank handler", ROM0
 
