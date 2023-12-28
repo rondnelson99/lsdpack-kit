@@ -8,6 +8,7 @@ hSongDone::
 hCurrentState::
 /* 
 Bit 0: 1 if song is paused
+Bit 1: 1 if menu is showing
 */
 	db
 
@@ -38,6 +39,9 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 	jr nz, .loop
 .done
 
+	ld a, %10 ; menu showing
+	ldh [hCurrentState], a
+	call ShowMenu
 	call ChangeSong
 
 
@@ -51,6 +55,10 @@ MainLoop:
 	ldh a, [hPressedKeys]
 	bit PADB_A, a
 	call nz, TogglePause
+
+	ldh a, [hPressedKeys]
+	bit PADB_B, a
+	call nz, ShowMenu
 
 	;if hSongDone is 1, switch to the next song and zero it
 
@@ -89,178 +97,31 @@ NextSong:: ; advance to the next song, wrapping around to the first if nescessar
 	; fall through to get the new song playing!
 
 /*
- * Performs a fade-to-black and loads up the next song
+ * loads up the next song. Non-blocking
 */ 
 ChangeSong::
-	call FadeOut
-	;get the pointer into the image table
-	ldh a, [hCurrentSong]
-	;the entries are 6 bytes long, so multiply by 6
-	add a, a
-	ld l, a
-	add a, a
-	add a, l
-	ld l, a
-	
-	ld h, HIGH(ImageTable)
-
-	;first comes the pointer to the image data
-	ld a, [hl+]
-	ld e, a
-	ld a, [hl+]
-	ld d, a
-
-	;then it's bank
-	ld a, [hl+]
-	ldh [hCurROMBank], a
-	ld [rROMB0], a
-	ld a, [hl+]
-	ldh [hCurROMBank + 1], a
-	ld [rROMB1], a
-	
-
-	;then the size of the image data
-	ld a, [hl+]
-	ld c, a
-	ld b, [hl]
-
-
-	ld hl, $8000
-
-	call LCDMemcpy ;copy the new tiles into VRAM
-
-
-	;and load the tilemap
-.loadTilemap
-	ld hl, $9800
-	ld b, SCRN_Y_B
-.row
-	ld c, SCRN_X_B
-	call LCDMemcpySmall
-	;move to the next row
-	ld a, l
-	add SCRN_VX_B - SCRN_X_B
-	ld l, a
-	adc h
-	sub l
-	ld h, a
-	dec b
-	jr nz, .row
-	
-	call FadeIn
-
 	; play the song
 	ldh a, [hCurrentSong]
 	di
 	call LsdjPlaySong
 	reti ;ei/ret
 
+SECTION "Show Song Image", ROM0
+ShowSongImage:: ; Shows the image for the current song. Blocking
+	call FadeOut
+	;get the pointer into the image table
+	ldh a, [hCurrentSong]
+	call LoadImage
+	
+	call FadeIn
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-SECTION "fade out", ROM0
-
-def FADE_SPEED equ 20 ;number of frames to fade for
-FadeOut:: ;fade BGP out to black
-	ld c, 4 ;loop through the 4 colors in the palette
-.nextColor
-	;do the fade
-	ldh a, [hBGP]
-	scf 
-	rla 
-	scf 
-	rla 
-	ldh [hBGP], a
-	ld b, FADE_SPEED / 4
-.wait
-	push bc
-	rst WaitVBlank
-	pop bc
-	dec b
-	jr nz, .wait
-	dec c
-	jr nz, .nextColor
-	ret
-
-SECTION "fade in", ROM0
-
-FadeIn:: ;fade BGP in from black
-	ld c, 4 ;loop through the 4 colors in the palette
-	ld e, MAIN_BGP ;this gets rotated right into BGP
-.nextColor
-	;do the fade
-	ldh a, [hBGP]
-	rr e
-	rra 
-	rr e
-	rra 
-	ldh [hBGP], a
-	ld b, FADE_SPEED / 4
-.wait
-	push de
-	push bc
-	rst WaitVBlank
-	pop bc
-	pop de
-
-	dec b
-	jr nz, .wait
-	dec c
-	jr nz, .nextColor
-	ret
 
 
 SECTION "load splash screen", ROM0 ;this is called by the header when the screen is off
 LoadSplashScreen::
-.loadTiles
-	ld hl, $8000
-	ld de, SplashTiles
-	ld bc, SIZEOF("Splash Tiles")
-	call Memcpy
-
-.loadTilemap
-	ld hl, $9800
-	ld de, SplashTilemap
-	ld c, SCRN_Y_B
-.row
-	ld b, SCRN_X_B
-.byte
-	ld a, [de]
-	inc de
-	ld [hl+], a
-	dec b
-	jr nz, .byte
-	;move to the next row
-	ld a, l
-	add SCRN_VX_B - SCRN_X_B
-	ld l, a
-	adc h
-	sub l
-	ld h, a
-	dec c
-	jr nz, .row
+	ld a, SPLASH_IMAGE_INDEX
+	call LoadImage
 	ret
-
-
-
-SECTION "Splash Tiles", ROM0
-SplashTiles:
-INCBIN "res/{SPLASH_IMAGE}.image" ;SPLASH_IMAGE is an EQUS set by kit_config.inc
-
-SECTION "splash tilemap", ROM0
-SplashTilemap:
-INCBIN "res/{SPLASH_IMAGE}.imagemap"
 
 ;include all the song data
 INCLUDE "res/lsdj.song"

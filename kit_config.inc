@@ -9,3 +9,7 @@ def SONG_COVER_LIST equs "song1, song2, song3, song4" ;This sets src/res/song1.p
 
 ; Here, you can pick the splash screen. Again, use the name of the png file in src/res, but without the .png
 def SPLASH_IMAGE equs "splash" ;this uses src/res/splash.png as the splash screen
+
+; This picks the image file for the menu
+def MENU_IMAGE equs "menu" ;this uses src/res/menu.png as the menu
+
