@@ -87,7 +87,7 @@ LoadImage::
 	ld b, [hl]
 
 
-	ld hl, $8000
+	ld hl, $8800
 
 	call LCDMemcpy ;copy the new tiles into VRAM
 

@@ -156,7 +156,7 @@ res/%.image: res/%.png
 
 res/%.imagemap: res/%.png
 	@$(MKDIR_P) $(@D)
-	$(RGBGFX) -u -t $@ $<
+	$(RGBGFX) -u -b 128 -t $@ $<
 
 ###############################################
 #                                             #
