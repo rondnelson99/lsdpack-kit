@@ -102,7 +102,7 @@ export MAIN_BGP
 	; xor a
 	ldh [hSCY], a
 	ldh [hSCX], a
-	ld a, LCDCF_ON | LCDCF_BGON
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16
 	ldh [hLCDC], a
 	; And turn the LCD on!
 	ldh [rLCDC], a
@@ -149,12 +149,6 @@ SECTION "OAM DMA", HRAM
 
 hOAMDMA::
 	ds OAMDMA.end - OAMDMA
-
-
-SECTION UNION "Shadow OAM", WRAM0,ALIGN[8]
-
-wShadowOAM::
-	ds NB_SPRITES * 4
 
 
 SECTION "Stack", WRAM0

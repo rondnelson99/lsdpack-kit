@@ -158,6 +158,10 @@ res/%.imagemap: res/%.png
 	@$(MKDIR_P) $(@D)
 	$(RGBGFX) -u -b 128 -t $@ $<
 
+res/%.spritetiles: res/%.png
+	@$(MKDIR_P) $(@D)
+	$(RGBGFX) --columns -o $@ $<
+
 ###############################################
 #                                             #
 #                 COMPILATION                 #

@@ -17,9 +17,9 @@ SECTION "Intro", ROM0
 Intro::
 	xor a
 	ldh [hCurrentSong], a
-	
-    call InitPlayerLYC
 
+	call InitMenu
+    call InitPlayerLYC
 
 def SPLASH_TIMEOUT equ 5 * 60
 SplashScreen: ;loop at the splash screen until either a button is pressed or a number of frames pass
@@ -46,6 +46,11 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 
 
 MainLoop:
+	call ClearSprites
+
+	call UpdateMenu
+
+
 	; Controls: A - Pause
 	; Right - Next Song
 	ldh a, [hPressedKeys]
@@ -72,6 +77,9 @@ MainLoop:
 
 
 .done
+	ld a, HIGH(wShadowOAM)
+	ldh [hOAMHigh], a
+
 	rst WaitVBlank
 	jr MainLoop
 
