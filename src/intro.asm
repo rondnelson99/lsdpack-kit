@@ -6,10 +6,8 @@ hCurrentSong::
 hSongDone::
 	db ;set to 1 when the song finishes
 hCurrentState::
-/* 
-Bit 0: 1 if song is paused
-Bit 1: 1 if menu is showing
-*/
+DEF CURRENT_STATE_BIT_PAUSE = 0
+DEF CURRENT_STATE_BIT_MENU = 1
 	db
 
 SECTION "Intro", ROM0
@@ -39,32 +37,48 @@ SplashScreen: ;loop at the splash screen until either a button is pressed or a n
 	jr nz, .loop
 .done
 
-	ld a, %10 ; menu showing
+	xor a
 	ldh [hCurrentState], a
-	call ShowMenu
+	
+	call ShowSongImage
 	call ChangeSong
 
 
 MainLoop:
 	call ClearSprites
 
-	call UpdateMenu
+	ldh a, [hCurrentState]
+	bit CURRENT_STATE_BIT_MENU, a
+	call nz, UpdateMenu
 
 
-	; Controls: A - Pause
-	; Right - Next Song
+	; Controls: A - Pause (off-menu) / Exit menu (on-menu)
+	; Right/down - Next Song
+	; left/up - Previous Song
+	; Controls: B - toggle menu
 	ldh a, [hPressedKeys]
-	bit PADB_RIGHT, a
+	and PADF_RIGHT | PADF_DOWN
 	call nz, NextSong
 
 	ldh a, [hPressedKeys]
-	bit PADB_A, a
-	call nz, TogglePause
+	and PADF_LEFT | PADF_UP
+	call nz, PreviousSong
 
 	ldh a, [hPressedKeys]
 	bit PADB_B, a
-	call nz, ShowMenu
+	call nz, ToggleMenu
 
+	ldh a, [hPressedKeys]
+	bit PADB_A, a
+	jr z, .noAPress
+
+	ldh a, [hCurrentState]
+	bit CURRENT_STATE_BIT_MENU, a
+	call nz, ToggleMenu
+	jr .noAPress
+	call TogglePause
+
+.noAPress
 	;if hSongDone is 1, switch to the next song and zero it
 
 	ldh a, [hSongDone]
@@ -92,7 +106,29 @@ TogglePause:
 	jp nz, PauseSong ; tail calls
 	jp ResumeSong
 
+SECTION "Toggle Menu", ROM0
+ToggleMenu:
+	ldh a, [hCurrentState]
+	xor %10 ; toggle the menu bit
+	ldh [hCurrentState], a
+	bit CURRENT_STATE_BIT_MENU, a
+	jp nz, ShowMenu ; tail calls
+	jp ShowSongImage
+
 SECTION "Change Song", ROM0
+PreviousSong::
+	; return to the previous song, wrappign around to the first if nescessary
+	ldh a, [hCurrentSong]
+	and a ; Are we playing song zero?
+	jr nz, .noWrap
+	; if so, go to the last song
+	ld a, NUMBER_OF_SONGS
+.noWrap
+	dec a
+	ldh [hCurrentSong], a
+	jr ChangeSong
+
+
 NextSong:: ; advance to the next song, wrapping around to the first if nescessary
 	ldh a, [hCurrentSong]
 	inc a
@@ -122,6 +158,7 @@ ShowSongImage:: ; Shows the image for the current song. Blocking
 	call LoadImage
 	
 	call FadeIn
+	ret
 
 
 
