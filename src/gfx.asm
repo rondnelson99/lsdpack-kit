@@ -4,6 +4,8 @@ SECTION "fade out", ROM0
 
 def FADE_SPEED equ 20 ;number of frames to fade for
 FadeOut:: ;fade BGP out to black - blocking
+	call ClearSprites
+
 	ld c, 4 ;loop through the 4 colors in the palette
 .nextColor
 	;do the fade
@@ -16,6 +18,11 @@ FadeOut:: ;fade BGP out to black - blocking
 	ld b, FADE_SPEED / 4
 .wait
 	push bc
+
+	; Use OAMDMA to clear sprites
+	ld a, HIGH(wShadowOAM)
+	ldh [hOAMHigh], a
+
 	rst WaitVBlank
 	pop bc
 	dec b

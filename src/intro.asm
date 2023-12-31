@@ -8,6 +8,7 @@ hSongDone::
 hCurrentState::
 DEF CURRENT_STATE_BIT_PAUSE = 0
 DEF CURRENT_STATE_BIT_MENU = 1
+DEF CURRENT_STATE_BIT_SONG_CHANGED = 2
 	db
 
 SECTION "Intro", ROM0
@@ -48,6 +49,9 @@ MainLoop:
 	call ClearSprites
 
 	ldh a, [hCurrentState]
+	res CURRENT_STATE_BIT_SONG_CHANGED, a
+	ldh [hCurrentState], a
+
 	bit CURRENT_STATE_BIT_MENU, a
 	call nz, UpdateMenu
 
@@ -72,25 +76,32 @@ MainLoop:
 	bit PADB_A, a
 	jr z, .noAPress
 
-	ldh a, [hCurrentState]
-	bit CURRENT_STATE_BIT_MENU, a
-	call nz, ToggleMenu
-	jr .noAPress
-	call TogglePause
+		ldh a, [hCurrentState]
+		bit CURRENT_STATE_BIT_MENU, a
+		push af
+			call nz, ToggleMenu
+		pop af
+		call z, TogglePause
 
 .noAPress
+	
 	;if hSongDone is 1, switch to the next song and zero it
 
 	ldh a, [hSongDone]
 	dec a
-	jr nz, .done
+	jr nz, :+
 
-	call NextSong
-	xor a
-	ldh [hSongDone], a
+		call NextSong
+		xor a
+		ldh [hSongDone], a
+:
 
+	; If showing song image, check if we need to change it
+	ldh a, [hCurrentState]
+	and 1 << CURRENT_STATE_BIT_SONG_CHANGED | 1 << CURRENT_STATE_BIT_MENU
+	cp 1 << CURRENT_STATE_BIT_SONG_CHANGED ; chack if song is changed but menu is not showing
+	call z, ShowSongImage
 
-.done
 	ld a, HIGH(wShadowOAM)
 	ldh [hOAMHigh], a
 
@@ -148,7 +159,11 @@ ChangeSong::
 	ldh a, [hCurrentSong]
 	di
 	call LsdjPlaySong
-	reti ;ei/ret
+	ei
+
+	ld hl, hCurrentState
+	set CURRENT_STATE_BIT_SONG_CHANGED, [hl]
+	ret
 
 SECTION "Show Song Image", ROM0
 ShowSongImage:: ; Shows the image for the current song. Blocking
