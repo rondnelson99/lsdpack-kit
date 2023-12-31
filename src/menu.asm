@@ -54,7 +54,7 @@ UpdateMenu::
     sub CURSOR_TARGET_Y
     ld b, a
 
-	lb de, 6, 3 ; width/height
+	lb de, CURSOR_IMAGE_WIDTH / 8, CURSOR_IMAGE_HEIGHT / 16 ; width/height
 	lb hl, 0, 0 ; tile number / flags
 	call RenderMetasprite
     ret

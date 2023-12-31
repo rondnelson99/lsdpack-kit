@@ -13,8 +13,8 @@ def SPLASH_IMAGE equs "splash" ;this uses src/res/splash.png as the splash scree
 ; This picks the image file for the menu
 def MENU_IMAGE equs "menu" ;this uses src/res/menu.png as the menu
 ; Now, define cursor positions for each song on the menu
-def MENU_SONG_X_POSITIONS equs "28, 10, 49,  16 "
-def MENU_SONG_Y_POSITIONS equs "74, 98, 116, 135"
+def MENU_SONG_X_POSITIONS equs "9, 9, 9,  96 "
+def MENU_SONG_Y_POSITIONS equs "57, 79, 102, 120"
 
 ; This picks the image file for the menu cursor
 ; The cursor images have a few requirements:
@@ -25,17 +25,17 @@ def MENU_SONG_Y_POSITIONS equs "74, 98, 116, 135"
 ;       or just regular RGB color with regular transparency. RGBGFX will assign lighter colors to lower indices I think.
 def CURSOR_IMAGE equs "cursor" ; this uses src/res/cursor.png as the menu cursor
 ; Set your chosen dimensions as well
-def CURSOR_IMAGE_WIDTH = 48
-def CURSOR_IMAGE_HEIGHT = 48
+def CURSOR_IMAGE_WIDTH = 16
+def CURSOR_IMAGE_HEIGHT = 16
 ; Define the cursor's "target". The cursor will be positioned so that it's target is at the song position
 ; The target is allowed to be outside of the sprite area, and can be negative
-def CURSOR_TARGET_X = 47
-def CURSOR_TARGET_Y = 29
+def CURSOR_TARGET_X = 16
+def CURSOR_TARGET_Y = 7
 
 ; Define your palette for color indices 1-3
 ; For each of the below lines, write a number from 0 (white) to 3 (black)
 def SPRITE_PALETTE_INDEX_1 = 0
-def SPRITE_PALETTE_INDEX_2 = 1
-def SPRITE_PALETTE_INDEX_3 = 2
+def SPRITE_PALETTE_INDEX_2 = 3
+def SPRITE_PALETTE_INDEX_3 = 3
 
 
